@@ -275,7 +275,7 @@ def call_doubao_video_api(api_key: str, model: str, prompt: str,
     # 1) 创建任务
     create_url = f"{config['base_url']}{config['video_endpoint']}"
     payload = {"model": model, "content": [{"type": "text", "text": prompt}]}
-    print(f"🎬 创建视频任务: {model}")
+    print(f"创建视频任务: {model}")
     create_res = requests.post(create_url, headers=headers, json=payload)
     if create_res.status_code != 200:
         return f"创建视频任务失败: {create_res.status_code} - {create_res.text}"
@@ -285,7 +285,7 @@ def call_doubao_video_api(api_key: str, model: str, prompt: str,
         return f"创建视频任务失败，无任务ID: {create_res.text}"
 
     task_id = create_result["id"]
-    print(f"📋 任务 ID: {task_id}，轮询中...")
+    print(f"任务 ID: {task_id}，轮询中...")
 
     # 2) 轮询查询
     query_url = f"{config['base_url']}{config['video_endpoint']}/{task_id}"
@@ -546,7 +546,7 @@ def call_tongyi_api(api_key: str, capability: Capability, content: str, **kwargs
     return Colors.colored(f"{ModelBrand.TONGYI.value} 暂不支持该功能！", Colors.RED)
 
 
-def get_api_key(brand: ModelBrand) -> Optional[str]:
+def get_api_key(brand: ModelBrand, interactive: bool = True) -> Optional[str]:
     """获取 API Key - 完全复用ccap.py成熟实现"""
     config = API_CONFIGS[brand]
     api_key = os.environ.get(config["env_key"])
@@ -554,10 +554,17 @@ def get_api_key(brand: ModelBrand) -> Optional[str]:
     if api_key:
         masked_key = f"{api_key[:4]}****{api_key[-4:]}"
         print(Colors.colored(f"检测到环境变量中的 API Key: {masked_key}", Colors.BLUE))
-        choice = input("是否使用该 API Key？[Y/n/quit]，直接回车默认使用：").strip().lower()
-        if choice == 'quit':
-            return None
-        if not choice or choice == 'y':
+        if interactive:
+            try:
+                choice = input("是否使用该 API Key？[Y/n/quit]，直接回车默认使用：").strip().lower()
+                if choice == 'quit':
+                    return None
+                if not choice or choice == 'y':
+                    return api_key
+            except EOFError:
+                print("\n非交互式模式下自动使用 API Key")
+                return api_key
+        else:
             return api_key
 
     print(Colors.colored(f"欢迎使用{brand.value}！我们需要您的 API Key 来调用模型服务。", Colors.CYAN))
@@ -687,15 +694,15 @@ def main():
     print("="*80)
     print(Colors.colored(Colors.BOLD + "灵犀 AI 助手 - 多品牌全功能版" + Colors.RESET, Colors.MAGENTA))
     print("="*80)
-    print(Colors.colored("支持: 豆包🔥 OpenAI Claude Google 百度文心 阿里通义", Colors.BLUE))
-    print(Colors.colored("能力: 文本生成 💬  图片生成 🎨  视频生成 🎬  文本向量化 📐", Colors.CYAN))
+    print(Colors.colored("支持: 豆包 OpenAI Claude Google 百度文心 阿里通义", Colors.BLUE))
+    print(Colors.colored("能力: 文本生成  图片生成  视频生成  文本向量化", Colors.CYAN))
     print(Colors.colored("提示：输入 'quit' 随时退回上一级菜单", Colors.YELLOW))
     print()
 
     while True:
         brand = select_brand()
         if brand is None:
-            print(Colors.colored("👋 已退出程序！", Colors.MAGENTA))
+            print(Colors.colored("已退出程序！", Colors.MAGENTA))
             break
 
         api_key = get_api_key(brand)
@@ -730,7 +737,7 @@ def main():
         while True:
             user_content = input("\n请输入内容: ").strip()
             if user_content.lower() == 'quit':
-                print(Colors.colored("🔙 返回功能选择", Colors.YELLOW))
+                print(Colors.colored("返回功能选择", Colors.YELLOW))
                 break
             if not user_content:
                 continue
@@ -748,7 +755,7 @@ def main():
                     extra_kwargs["embedding_model"] = use_model
 
                 result = call_api(brand, api_key, capability, user_content, **extra_kwargs)
-                print(f"\n📝 结果:\n{result}")
+                print(f"\n结果:\n{result}")
 
             except Exception as e:
                 print(f"\n{Colors.colored('❌ 调用失败！', Colors.RED)}")
