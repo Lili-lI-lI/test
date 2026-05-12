@@ -1,0 +1,90 @@
+{
+  "name": "lingxi-code-diagnoser",
+  "displayName": "灵犀代码诊断助手",
+  "description": "基于多品牌大模型API的代码问题诊断VS Code插件",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Formatters",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:lingxi-code-diagnoser.diagnoseCode"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "lingxi-code-diagnoser.diagnoseCode",
+        "title": "灵犀代码诊断助手：诊断当前代码"
+      },
+      {
+        "command": "lingxi-code-diagnoser.addComments",
+        "title": "灵犀代码诊断助手：为代码添加单行注释"
+      },
+      {
+        "command": "lingxi-code-diagnoser.diagnoseWithDoubao",
+        "title": "灵犀代码诊断助手：使用豆包诊断"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "lingxi-code-diagnoser.diagnoseCode",
+          "group": "0_language"
+        },
+        {
+          "command": "lingxi-code-diagnoser.addComments",
+          "group": "0_language"
+        },
+        {
+          "command": "lingxi-code-diagnoser.diagnoseWithDoubao",
+          "group": "0_language"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "lingxi-code-diagnoser.diagnoseCode",
+        "key": "ctrl+shift+;",
+        "mac": "cmd+shift+;"
+      }
+    ],
+    "configuration": {
+      "title": "灵犀代码诊断助手",
+      "properties": {
+        "lingxi-code-diagnoser.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Python 解释器路径"
+        },
+        "lingxi-code-diagnoser.workingDirectory": {
+          "type": "string",
+          "default": "",
+          "description": "灵犀项目的工作目录"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "eslint": "^8.40.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.1.3",
+    "vscode-test": "^1.6.1"
+  },
+  "dependencies": {
+    "child_process": "^1.0.2"
+  }
+}
